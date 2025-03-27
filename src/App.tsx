@@ -11,6 +11,7 @@ import Chat from "./pages/Chat";
 import VoiceRooms from "./pages/VoiceRooms";
 import VoiceRoomDetail from "./pages/VoiceRoomDetail";
 import TextChannelPage from "./pages/TextChannelPage";
+import VideoChannelPage from "./pages/VideoChannelPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/voice-rooms" element={<VoiceRooms />} />
               <Route path="/voice-rooms/:roomId" element={<VoiceRoomDetail />} />
               <Route path="/text-channels/:channelId" element={<TextChannelPage />} />
+              <Route path="/video-channels/:channelId" element={<VideoChannelPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

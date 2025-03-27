@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { Headphones, MessageSquare, Settings, Plus, Volume2 } from 'lucide-react';
+import { Headphones, MessageSquare, Settings, Plus, Volume2, Video } from 'lucide-react';
 import { useVoiceRoom } from '@/contexts/VoiceRoomContext';
 
 interface VoiceChannelSidebarProps {
@@ -36,24 +36,43 @@ const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) 
         participants: room.participants.length,
         isActive: room.id === activeRoomId
       }))
+    },
+    {
+      id: 'video-channels',
+      name: 'VIDEO CHANNELS',
+      channels: [
+        { id: 'clips', name: 'clips', type: 'video' },
+        { id: 'tutorials', name: 'tutorials', type: 'video' },
+        { id: 'gameplay', name: 'gameplay', type: 'video' },
+      ]
     }
   ];
   
   const handleChannelClick = (channelId: string, type: string) => {
     if (type === 'voice') {
       navigate(`/voice-rooms/${channelId}`);
-    } else {
-      // For text channels, navigate to a new text channel route
+    } else if (type === 'text') {
       navigate(`/text-channels/${channelId}`);
+    } else if (type === 'video') {
+      navigate(`/video-channels/${channelId}`);
     }
   };
   
-  const handleCreateChannel = () => {
-    navigate('/voice-rooms');
+  const handleCreateChannel = (type: string) => {
+    if (type === 'voice') {
+      navigate('/voice-rooms');
+    }
   };
   
-  const isTextChannelActive = (channelId: string) => {
-    return location.pathname === `/text-channels/${channelId}`;
+  const isChannelActive = (channelId: string, type: string) => {
+    if (type === 'text') {
+      return location.pathname === `/text-channels/${channelId}`;
+    } else if (type === 'voice') {
+      return channelId === activeRoomId;
+    } else if (type === 'video') {
+      return location.pathname === `/video-channels/${channelId}`;
+    }
+    return false;
   };
   
   return (
@@ -71,7 +90,7 @@ const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) 
               </h3>
               {category.id === 'voice-channels' && (
                 <button 
-                  onClick={handleCreateChannel}
+                  onClick={() => handleCreateChannel('voice')}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Plus size={14} />
@@ -86,13 +105,15 @@ const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) 
                   onClick={() => handleChannelClick(channel.id, channel.type)}
                   className={cn(
                     "w-full text-left px-2 py-1.5 rounded flex items-center group hover:bg-secondary/80",
-                    (channel.isActive || (channel.type === 'text' && isTextChannelActive(channel.id))) && "bg-secondary"
+                    isChannelActive(channel.id, channel.type) && "bg-secondary"
                   )}
                 >
                   {channel.type === 'text' ? (
                     <MessageSquare size={16} className="mr-2 text-muted-foreground" />
-                  ) : (
+                  ) : channel.type === 'voice' ? (
                     <Volume2 size={16} className="mr-2 text-muted-foreground" />
+                  ) : (
+                    <Video size={16} className="mr-2 text-muted-foreground" />
                   )}
                   
                   <span className="flex-1 text-sm">{channel.name}</span>

@@ -13,6 +13,12 @@ export interface Message {
   sender: User;
   timestamp: Date;
   isRead: boolean;
+  reactions?: Reaction[];
+  votes?: {
+    upvotes: number;
+    downvotes: number;
+    userVote?: 'up' | 'down' | null;
+  };
   media?: {
     type: 'image' | 'video' | 'audio' | 'file';
     url: string;
@@ -20,6 +26,12 @@ export interface Message {
     name?: string;
     size?: number;
   }[];
+}
+
+export interface Reaction {
+  emoji: string;
+  count: number;
+  users: string[]; // user IDs who reacted
 }
 
 export interface Conversation {
@@ -43,6 +55,11 @@ export interface VoiceRoom {
   isLive: boolean;
   topic?: string;
   createdAt: Date;
+  reactions?: Reaction[];
+  votes?: {
+    upvotes: number;
+    downvotes: number;
+  };
 }
 
 export interface VoiceParticipant {
@@ -50,4 +67,29 @@ export interface VoiceParticipant {
   role: 'host' | 'speaker' | 'listener';
   isMuted: boolean;
   joinedAt: Date;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  type: 'text' | 'voice' | 'video';
+  messages?: Message[];
+  videos?: VideoPost[];
+  participants?: VoiceParticipant[];
+  isLive?: boolean;
+}
+
+export interface VideoPost {
+  id: string;
+  title?: string;
+  url: string;
+  thumbnailUrl?: string;
+  createdAt: Date;
+  creator: User;
+  reactions?: Reaction[];
+  votes?: {
+    upvotes: number;
+    downvotes: number;
+    userVote?: 'up' | 'down' | null;
+  };
 }
