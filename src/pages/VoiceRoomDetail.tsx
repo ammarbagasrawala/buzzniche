@@ -5,11 +5,14 @@ import Layout from '@/components/Layout';
 import { useVoiceRoom } from '@/contexts/VoiceRoomContext';
 import { useConversation } from '@/contexts/ConversationContext';
 import VoiceRoomView from '@/components/VoiceRoomView';
+import VoiceChannelSidebar from '@/components/VoiceChannelSidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const VoiceRoomDetail = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const { getRoom, joinRoom, leaveRoom, toggleMute, raiseHand, loadingRooms } = useVoiceRoom();
   const { currentUser } = useConversation();
+  const isMobile = useIsMobile();
   
   const room = roomId ? getRoom(roomId) : undefined;
   
@@ -44,8 +47,26 @@ const VoiceRoomDetail = () => {
     return <Navigate to="/voice-rooms" />;
   }
   
+  // Mobile: Show only voice room without sidebar
+  if (isMobile) {
+    return (
+      <Layout>
+        <VoiceRoomView
+          room={room}
+          currentUserId={currentUser.id}
+          onLeaveRoom={leaveRoom}
+          onToggleMute={toggleMute}
+          onRaiseHand={raiseHand}
+        />
+      </Layout>
+    );
+  }
+  
+  // Desktop: Show Discord-like sidebar with channel list
   return (
-    <Layout>
+    <Layout
+      sidebar={<VoiceChannelSidebar />}
+    >
       <VoiceRoomView
         room={room}
         currentUserId={currentUser.id}

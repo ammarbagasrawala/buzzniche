@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceRoom, VoiceParticipant } from '@/types';
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Mic, MicOff, Hand, MoreHorizontal, Users } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Hand, MoreHorizontal, Users, Video, VideoOff, Settings, Headphones } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import VoiceRoomParticipant from './VoiceRoomParticipant';
@@ -21,6 +21,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface VoiceRoomViewProps {
   room: VoiceRoom;
@@ -42,6 +44,10 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isMuted, setIsMuted] = useState(true);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [noiseSuppressionEnabled, setNoiseSuppressionEnabled] = useState(true);
+  const [echoCancellationEnabled, setEchoCancellationEnabled] = useState(true);
   
   const currentUserParticipant = room.participants.find(p => p.user.id === currentUserId);
   const isHost = currentUserParticipant?.role === 'host';
@@ -76,6 +82,20 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
   const handleLeaveRoom = () => {
     onLeaveRoom();
     navigate('/voice-rooms');
+  };
+  
+  const handleToggleScreenShare = () => {
+    setIsScreenSharing(!isScreenSharing);
+    toast({
+      description: isScreenSharing ? "Screen sharing stopped" : "Screen sharing started",
+    });
+  };
+  
+  const handleToggleRecording = () => {
+    setIsRecording(!isRecording);
+    toast({
+      description: isRecording ? "Recording stopped" : "Recording started",
+    });
   };
   
   // Simulate participants muted status (in a real app, this would come from a WebRTC or WebSocket connection)
@@ -170,6 +190,64 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
           </SheetContent>
         </Sheet>
         
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="ml-1 w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
+              <Settings size={20} />
+            </button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Voice Settings</SheetTitle>
+              <SheetDescription>
+                Adjust your audio settings
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Noise Suppression</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Reduce background noise in your microphone
+                  </p>
+                </div>
+                <Switch 
+                  checked={noiseSuppressionEnabled} 
+                  onCheckedChange={setNoiseSuppressionEnabled} 
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Echo Cancellation</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Remove echo from your audio
+                  </p>
+                </div>
+                <Switch 
+                  checked={echoCancellationEnabled} 
+                  onCheckedChange={setEchoCancellationEnabled} 
+                />
+              </div>
+              
+              {isHost && (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Record Conversation</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Save this voice room conversation
+                    </p>
+                  </div>
+                  <Switch 
+                    checked={isRecording} 
+                    onCheckedChange={handleToggleRecording} 
+                  />
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="ml-1 w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
@@ -180,6 +258,15 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
             <DropdownMenuItem onClick={handleLeaveRoom}>
               Leave Room
             </DropdownMenuItem>
+            {isHost && (
+              <DropdownMenuItem onClick={() => {
+                toast({
+                  description: "Invite link copied to clipboard!",
+                });
+              }}>
+                Copy Invite Link
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -215,6 +302,29 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
             </div>
           </div>
         )}
+        
+        {isScreenSharing && (
+          <div className="mt-6 p-4 rounded-lg border bg-muted/30 flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-muted-foreground mb-1">Screen sharing active</p>
+              <button 
+                onClick={handleToggleScreenShare}
+                className="text-sm text-primary hover:underline"
+              >
+                Stop sharing
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {isRecording && (
+          <div className="mt-4 flex items-center justify-center">
+            <div className="px-3 py-1 rounded-full bg-red-100 text-red-600 flex items-center text-xs">
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-1"></span>
+              Recording
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="p-4 border-t bg-background/80 backdrop-blur-sm">
@@ -229,14 +339,31 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
                 : "bg-green-500 text-white hover:bg-green-600",
               !isSpeaker && "opacity-50 cursor-not-allowed"
             )}
+            title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
           </button>
+          
+          {isSpeaker && (
+            <button
+              onClick={handleToggleScreenShare}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center",
+                isScreenSharing 
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              )}
+              title={isScreenSharing ? "Stop Screen Share" : "Share Screen"}
+            >
+              {isScreenSharing ? <VideoOff size={20} /> : <Video size={20} />}
+            </button>
+          )}
           
           {!isSpeaker && (
             <button
               onClick={handleRaiseHand}
               className="w-12 h-12 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/80"
+              title="Raise Hand"
             >
               <Hand size={20} />
             </button>
@@ -245,6 +372,7 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
           <button
             onClick={handleLeaveRoom}
             className="w-12 h-12 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/80"
+            title="Leave"
           >
             Leave
           </button>

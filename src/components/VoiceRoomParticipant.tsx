@@ -3,7 +3,7 @@ import React from 'react';
 import { VoiceParticipant } from '@/types';
 import { cn } from "@/lib/utils";
 import Avatar from './Avatar';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, Headphones } from 'lucide-react';
 
 interface VoiceRoomParticipantProps {
   participant: VoiceParticipant;
@@ -34,10 +34,31 @@ const VoiceRoomParticipant: React.FC<VoiceRoomParticipantProps> = ({
     listener: 'bg-muted text-muted-foreground'
   };
   
+  const getStatusIndicator = () => {
+    if (!user.status) return null;
+    
+    const statusColors = {
+      online: 'bg-green-500',
+      away: 'bg-yellow-500',
+      offline: 'bg-gray-500'
+    };
+    
+    return (
+      <div className={cn(
+        "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background",
+        statusColors[user.status]
+      )} />
+    );
+  };
+  
+  const isListening = role === 'listener' && user.status === 'online';
+  
   return (
     <div className={cn("flex flex-col items-center p-2", className)}>
       <div className="relative">
         <Avatar user={user} size="lg" />
+        
+        {getStatusIndicator()}
         
         {(role === 'host' || role === 'speaker') && (
           <button 
@@ -50,6 +71,12 @@ const VoiceRoomParticipant: React.FC<VoiceRoomParticipantProps> = ({
           >
             {isMuted ? <MicOff size={12} /> : <Mic size={12} />}
           </button>
+        )}
+        
+        {isListening && (
+          <div className="absolute -bottom-2 right-0 w-6 h-6 rounded-full border-2 border-background bg-blue-500 text-white flex items-center justify-center">
+            <Headphones size={12} />
+          </div>
         )}
       </div>
       
