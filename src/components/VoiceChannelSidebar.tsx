@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { Headphones, MessageSquare, Settings, Plus, Volume2 } from 'lucide-react';
 import { useVoiceRoom } from '@/contexts/VoiceRoomContext';
@@ -11,6 +11,7 @@ interface VoiceChannelSidebarProps {
 
 const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { voiceRooms, activeRoomId } = useVoiceRoom();
   
   const liveRooms = voiceRooms.filter(room => room.isLive);
@@ -42,13 +43,17 @@ const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) 
     if (type === 'voice') {
       navigate(`/voice-rooms/${channelId}`);
     } else {
-      // For text channels, navigate to a hypothetical chat interface
-      navigate(`/chat/${channelId}`);
+      // For text channels, navigate to a new text channel route
+      navigate(`/text-channels/${channelId}`);
     }
   };
   
   const handleCreateChannel = () => {
     navigate('/voice-rooms');
+  };
+  
+  const isTextChannelActive = (channelId: string) => {
+    return location.pathname === `/text-channels/${channelId}`;
   };
   
   return (
@@ -81,7 +86,7 @@ const VoiceChannelSidebar: React.FC<VoiceChannelSidebarProps> = ({ className }) 
                   onClick={() => handleChannelClick(channel.id, channel.type)}
                   className={cn(
                     "w-full text-left px-2 py-1.5 rounded flex items-center group hover:bg-secondary/80",
-                    channel.isActive && "bg-secondary"
+                    (channel.isActive || (channel.type === 'text' && isTextChannelActive(channel.id))) && "bg-secondary"
                   )}
                 >
                   {channel.type === 'text' ? (

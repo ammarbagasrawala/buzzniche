@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import VoiceRooms from "./pages/VoiceRooms";
 import VoiceRoomDetail from "./pages/VoiceRoomDetail";
+import TextChannelPage from "./pages/TextChannelPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/chat/:conversationId" element={<Chat />} />
               <Route path="/voice-rooms" element={<VoiceRooms />} />
               <Route path="/voice-rooms/:roomId" element={<VoiceRoomDetail />} />
+              <Route path="/text-channels/:channelId" element={<TextChannelPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
