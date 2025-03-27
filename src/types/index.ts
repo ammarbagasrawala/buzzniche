@@ -33,3 +33,21 @@ export interface Conversation {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface VoiceRoom {
+  id: string;
+  name: string;
+  description?: string;
+  host: User;
+  participants: VoiceParticipant[];
+  isLive: boolean;
+  topic?: string;
+  createdAt: Date;
+}
+
+export interface VoiceParticipant {
+  user: User;
+  role: 'host' | 'speaker' | 'listener';
+  isMuted: boolean;
+  joinedAt: Date;
+}
