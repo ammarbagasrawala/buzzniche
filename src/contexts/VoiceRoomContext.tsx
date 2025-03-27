@@ -206,7 +206,7 @@ export const VoiceRoomProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (room.id === activeRoomId) {
             const updatedParticipants = room.participants.map(p => {
               if (p.user.id === currentUser.id) {
-                return { ...p, role: 'speaker' };
+                return { ...p, role: 'speaker' as const };
               }
               return p;
             });

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { VoiceRoom, VoiceParticipant } from '@/types';
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Mic, MicOff, HandRaised, MoreHorizontal, Users } from 'lucide-react';
+import { ArrowLeft, Mic, MicOff, Hand, MoreHorizontal, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import VoiceRoomParticipant from './VoiceRoomParticipant';
@@ -238,7 +238,7 @@ const VoiceRoomView: React.FC<VoiceRoomViewProps> = ({
               onClick={handleRaiseHand}
               className="w-12 h-12 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/80"
             >
-              <HandRaised size={20} />
+              <Hand size={20} />
             </button>
           )}
           
